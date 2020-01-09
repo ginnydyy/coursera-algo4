@@ -9,7 +9,7 @@ import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
     private static final double CONFIDENCE_95 = 1.96;
-    // the array of the number of sites opened when the system percolates for each trial
+    // the array of the fraction of sites opened when the system percolates for each trial
     private double[] fractions;
     private final int trials;
     private double mean = -1.0d;
