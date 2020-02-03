@@ -140,6 +140,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     // unit testing (required)
     public static void main(String[] args) {
+        testConstructor();
         testAddFirst(args);
         testAddLast(args);
         testRemoveFirst(args);
@@ -168,6 +169,12 @@ public class Deque<Item> implements Iterable<Item> {
             StdOut.print(" ");
         }
         StdOut.println();
+    }
+
+    private static void testConstructor() {
+        StdOut.println("====testConstructor====");
+        Deque<String> deque = new Deque<>();
+        StdOut.println("Should be empty: " + deque.isEmpty());
     }
 
     private static void testAddFirst(String[] args) {
@@ -245,6 +252,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testIteratorNextException() {
+        StdOut.println("====testIteratorNextException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.iterator().next();
@@ -255,6 +264,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testIteratorRemoveException() {
+        StdOut.println("====testIteratorRemoveException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.iterator().remove();
@@ -265,6 +276,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testAddFirstException() {
+        StdOut.println("====testAddFirstException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.addFirst(null);
@@ -275,6 +288,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testAddLastException() {
+        StdOut.println("====testAddLastException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.addLast(null);
@@ -285,6 +300,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testRemoveFirsttException() {
+        StdOut.println("====testRemoveFirsttException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.removeFirst();
@@ -295,6 +312,8 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private static void testRemoveLastException() {
+        StdOut.println("====testRemoveLastException====");
+
         Deque<String> deque = new Deque<>();
         try {
             deque.removeLast();
