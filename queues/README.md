@@ -4,7 +4,7 @@
 This is the programming assignment for Cousera Algorithms week 2.
 
 - Assignment specification: https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php
-- Assignment grader output (100/100 score passed): 
+- Assignment grader output (100/100 score passed): https://github.com/ginnydyy/coursera-algo4/blob/master/queues/grader-output
 
 - How to:
   - set up the development environment (on Mac): https://lift.cs.princeton.edu/java/mac/
