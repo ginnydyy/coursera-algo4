@@ -33,10 +33,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     /**
      * Add an item.
-     * If the queue is empty, then initiate a queue and add the item.
+     * If the queue is empty, reset the front and end index to 0, then add the item to the end.
      * If the queue is not empty and it's full, then resize the queue, add the item to the end of
      * the queue.
-     * If the queue is not empty but not full yet, then add the item to the end of the queue.
+     * If the queue is not empty but not full yet, and there is no more space after the last index,
+     * then add the item to the front of the queue.
+     * If the queue is not empty but not full yet, and there is more space after the last index,
+     * then add the item to the end of the queue.
      *
      * @param item the item to add
      */
@@ -45,15 +48,21 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new IllegalArgumentException("The input item of enqueue(Item item) is null.");
         }
         if (isEmpty()) {
-            queue[0] = item;
             first = 0;
             last = 0;
+            queue[0] = item;
         }
         else {
             if (n == queue.length) {
                 resize(2 * queue.length);
             }
-            queue[++last] = item;
+
+            if (last == queue.length - 1) {
+                queue[--first] = item;
+            }
+            else {
+                queue[++last] = item;
+            }
         }
         n++;
     }
@@ -97,7 +106,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private class ListIterator implements Iterator<Item> {
-        private Item[] copy = copy();
+        private final Item[] copy = copy();
         private int current = 0;
 
         ListIterator() {
@@ -181,7 +190,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private static void testConstructor() {
         StdOut.println("====testConstructor====");
         RandomizedQueue<String> q = new RandomizedQueue<>();
-        StdOut.println("Should be empty: " + q.isEmpty());
+        assert (q.isEmpty());
     }
 
     private static void testEnqueue(String[] args) {
@@ -193,6 +202,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             q.enqueue(s);
         }
         StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
         StdOut.println("iterate q: ");
         for (String s : q) {
             StdOut.println(s);
@@ -208,6 +218,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             q.enqueue(s);
         }
         StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
         StdOut.println("iterate q: ");
         for (String s : q) {
             StdOut.println(s);
@@ -219,6 +230,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             printCurrentQueue(q);
             StdOut.println();
         }
+        assert (q.size() == 0);
     }
 
     private static void testSample(String[] args) {
@@ -230,6 +242,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             q.enqueue(s);
         }
         StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
         StdOut.println("iterate q: ");
         for (String s : q) {
             StdOut.println(s);
@@ -242,6 +255,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             printCurrentQueue(q);
             StdOut.println();
         }
+        assert (q.size() == args.length);
     }
 
     private static void testIterator(String[] args) {
@@ -313,7 +327,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private static void testIteratorRemoveException() {
         StdOut.println("====testIteratorRemoveException====");
-
         try {
             RandomizedQueue<String> q = new RandomizedQueue<>();
             q.iterator().remove();
@@ -341,6 +354,47 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         StdOut.println();
     }
 
+
+    private static void testRamdon(int n) {
+        StdOut.println("====testRamdon====");
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < n; i++) {
+            int r = StdRandom.uniform(500);
+            if (r <= n / 2) {
+                StdOut.println("enqueue: " + i);
+                q.enqueue("" + i);
+            }
+            else {
+                if (!q.isEmpty()) {
+                    StdOut.println("dequeue");
+                    q.dequeue();
+                }
+                else {
+                    StdOut.println("enqueue: " + i);
+                    q.enqueue("" + i);
+                }
+            }
+            StdOut.println("Size: " + q.size());
+            printCurrentQueue(q);
+        }
+    }
+
+    private static void testOutOfBounds() {
+        StdOut.println("====testOutOfBounds====");
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        q.enqueue("0");
+        printCurrentQueue(q);
+
+        q.enqueue("1");
+        printCurrentQueue(q);
+
+        q.dequeue();
+        printCurrentQueue(q);
+
+        q.enqueue("3");
+        printCurrentQueue(q);
+    }
+
     // unit testing (required)
     public static void main(String[] args) {
         testConstructor();
@@ -353,6 +407,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         testSampleException();
         testIteratorNextException();
         testIteratorRemoveException();
+        testRamdon(500);
+        testOutOfBounds();
     }
-
 }
