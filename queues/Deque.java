@@ -174,7 +174,7 @@ public class Deque<Item> implements Iterable<Item> {
     private static void testConstructor() {
         StdOut.println("====testConstructor====");
         Deque<String> deque = new Deque<>();
-        StdOut.println("Should be empty: " + deque.isEmpty());
+        assert (deque.isEmpty());
     }
 
     private static void testAddFirst(String[] args) {
@@ -186,9 +186,14 @@ public class Deque<Item> implements Iterable<Item> {
             dequeFirst.addFirst(s);
         }
         StdOut.println("dequeFirst size: " + dequeFirst.size());
+        assert (dequeFirst.size() == args.length);
+
         StdOut.println("iterate dequeFirst: ");
+        int j = 0;
         for (String s : dequeFirst) {
             StdOut.println(s);
+            assert (args[args.length - 1 - j].equals(s));
+            j++;
         }
     }
 
@@ -201,9 +206,14 @@ public class Deque<Item> implements Iterable<Item> {
             dequeLast.addLast(s);
         }
         StdOut.println("dequeLast size: " + dequeLast.size());
+        assert (dequeLast.size() == args.length);
+
         StdOut.println("iterate dequeLast: ");
+        int j = 0;
         for (String s : dequeLast) {
             StdOut.println(s);
+            assert (args[j].equals(s));
+            j++;
         }
     }
 
@@ -220,12 +230,17 @@ public class Deque<Item> implements Iterable<Item> {
         for (String s : dequeFirst) {
             StdOut.println(s);
         }
+
+        int j = 0;
         while (!dequeFirst.isEmpty()) {
             String r = dequeFirst.removeFirst();
             StdOut.println("removeFirst: " + r);
+            assert (args[j].equals(r));
             StdOut.println("current size: " + dequeFirst.size());
+            assert (dequeFirst.size() == (args.length - 1 - j));
             printCurrentDeque(dequeFirst);
             StdOut.println();
+            j++;
         }
     }
 
@@ -242,10 +257,13 @@ public class Deque<Item> implements Iterable<Item> {
         for (String s : dequeFirst) {
             StdOut.println(s);
         }
+        int j = 0;
         while (!dequeFirst.isEmpty()) {
             String r = dequeFirst.removeLast();
             StdOut.println("removeLast: " + r);
+            assert (args[args.length - 1 - j].equals(r));
             StdOut.println("current size: " + dequeFirst.size());
+            assert (dequeFirst.size() == args.length - 1 - j);
             printCurrentDeque(dequeFirst);
             StdOut.println();
         }
