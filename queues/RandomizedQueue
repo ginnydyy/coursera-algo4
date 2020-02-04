@@ -1,0 +1,413 @@
+/* *****************************************************************************
+ *  Name:
+ *  Date:
+ *  Description:
+ ************************************************************************** */
+
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class RandomizedQueue<Item> implements Iterable<Item> {
+    private int first;
+    private int last;
+    private int n;
+    private Item[] queue;
+
+    // construct an empty randomized queue
+    public RandomizedQueue() {
+        queue = (Item[]) new Object[1];
+    }
+
+    // is the randomized queue empty?
+    public boolean isEmpty() {
+        return n == 0;
+    }
+
+    // return the number of items on the randomized queue
+    public int size() {
+        return n;
+    }
+
+    /**
+     * Add an item.
+     * If the queue is empty, reset the front and end index to 0, then add the item to the end.
+     * If the queue is not empty and it's full, then resize the queue, add the item to the end of
+     * the queue.
+     * If the queue is not empty but not full yet, and there is no more space after the last index,
+     * then add the item to the front of the queue.
+     * If the queue is not empty but not full yet, and there is more space after the last index,
+     * then add the item to the end of the queue.
+     *
+     * @param item the item to add
+     */
+    public void enqueue(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("The input item of enqueue(Item item) is null.");
+        }
+        if (isEmpty()) {
+            first = 0;
+            last = 0;
+            queue[0] = item;
+        }
+        else {
+            if (n == queue.length) {
+                resize(2 * queue.length);
+            }
+
+            if (last == queue.length - 1) {
+                queue[--first] = item;
+            }
+            else {
+                queue[++last] = item;
+            }
+        }
+        n++;
+    }
+
+    /**
+     * Remove and return a random item.
+     * Remove a random item, if the number of items in the queue is less than a quarter of the
+     * length of the queue, then resize the queue to half size.
+     *
+     * @return the removed item
+     */
+    public Item dequeue() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Nothing to dequeue.");
+        }
+        int i = StdRandom.uniform(first, last + 1);
+        Item removeItem = queue[i];
+        removeItem(i);
+        if (n < queue.length / 4) {
+            resize(queue.length / 2);
+        }
+        return removeItem;
+    }
+
+    /**
+     * Return a random item (but do not remove it).
+     *
+     * @return the random item.
+     */
+    public Item sample() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Nothing to sample.");
+        }
+        int i = StdRandom.uniform(first, last + 1);
+        return queue[i];
+    }
+
+    // return an independent iterator over items in random order
+    public Iterator<Item> iterator() {
+        return new ListIterator();
+    }
+
+    private class ListIterator implements Iterator<Item> {
+        private final Item[] copy = copy();
+        private int current = 0;
+
+        ListIterator() {
+            StdRandom.shuffle(copy);
+        }
+
+        public boolean hasNext() {
+            return current < n;
+        }
+
+        public Item next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("Nothing to return.");
+            }
+            return copy[current++];
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException(
+                    "remove() method in the iterator is not supported.");
+        }
+    }
+
+    private Item[] copy() {
+        Item[] copy = (Item[]) new Object[n];
+        for (int i = 0; i < n; i++) {
+            copy[i] = queue[first + i];
+        }
+        return copy;
+    }
+
+    private void resize(int capacity) {
+        Item[] copy = (Item[]) new Object[capacity];
+        for (int i = first; i <= last; i++) {
+            copy[i - first] = queue[i];
+        }
+        queue = copy;
+        first = 0;
+        last = n - 1;
+    }
+
+    private void removeItem(int i) {
+        queue[i] = null;
+        if (i == first) { // remove the first item
+            if (n > 1) {
+                first++;
+            }
+            else {
+                first = 0;
+                last = 0;
+            }
+        }
+        else if (i == last) { // remove the last item
+            if (n > 1) {
+                last--;
+            }
+            else {
+                first = 0;
+                last = 0;
+            }
+        }
+        else if ((i - first) <= (last - i)) {
+            // the removed item is on left side, move each item on left side to the next right
+            for (int j = i; j > first; j--) {
+                queue[j] = queue[j - 1];
+            }
+            queue[first] = null;
+            first++;
+        }
+        else { // the removed item is on right side, move each item on right side to the previous left
+            for (int j = i; j < last; j++) {
+                queue[j] = queue[j + 1];
+            }
+            queue[last] = null;
+            last--;
+        }
+        n--;
+    }
+
+    // ==================Tests===================
+    private static void testConstructor() {
+        StdOut.println("====testConstructor====");
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        assert (q.isEmpty());
+    }
+
+    private static void testEnqueue(String[] args) {
+        StdOut.println("====testEnqueue====");
+        printArgs(args);
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            q.enqueue(s);
+        }
+        StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
+        StdOut.println("iterate q: ");
+        for (String s : q) {
+            StdOut.println(s);
+        }
+    }
+
+    private static void testDequeue(String[] args) {
+        StdOut.println("====testDequeue====");
+        printArgs(args);
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            q.enqueue(s);
+        }
+        StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
+        StdOut.println("iterate q: ");
+        for (String s : q) {
+            StdOut.println(s);
+        }
+        while (!q.isEmpty()) {
+            String r = q.dequeue();
+            StdOut.println("dequeue: " + r);
+            StdOut.println("current size: " + q.size());
+            printCurrentQueue(q);
+            StdOut.println();
+        }
+        assert (q.size() == 0);
+    }
+
+    private static void testSample(String[] args) {
+        StdOut.println("====testSample====");
+        printArgs(args);
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            q.enqueue(s);
+        }
+        StdOut.println("q size: " + q.size());
+        assert (q.size() == args.length);
+        StdOut.println("iterate q: ");
+        for (String s : q) {
+            StdOut.println(s);
+        }
+
+        for (int i = 0; i < q.size(); i++) {
+            String s = q.sample();
+            StdOut.println("sample: " + s);
+            StdOut.println("current size: " + q.size());
+            printCurrentQueue(q);
+            StdOut.println();
+        }
+        assert (q.size() == args.length);
+    }
+
+    private static void testIterator(String[] args) {
+        StdOut.println("====testIterator====");
+        printArgs(args);
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            q.enqueue(s);
+        }
+        StdOut.println("q size: " + q.size());
+        StdOut.println("iterate q: ");
+        for (String s : q) {
+            StdOut.println(s);
+        }
+
+        StdOut.println("matrix:");
+        for (String a : q) {
+            for (String b : q)
+                StdOut.print(a + "-" + b + " ");
+            StdOut.println();
+        }
+    }
+
+    private static void testEnqueueException() {
+        StdOut.println("====testEnqueueException====");
+        try {
+            RandomizedQueue<String> q = new RandomizedQueue<>();
+            q.enqueue(null);
+        }
+        catch (IllegalArgumentException e) {
+            StdOut.println("Catch enqueue IllegalArgumentException: " + e.getMessage());
+        }
+    }
+
+    private static void testDequeueException() {
+        StdOut.println("====testDequeueException====");
+        try {
+            RandomizedQueue<String> q = new RandomizedQueue<>();
+            q.dequeue();
+        }
+        catch (NoSuchElementException e) {
+            StdOut.println("Catch dequeue NoSuchElementException: " + e.getMessage());
+        }
+    }
+
+    private static void testSampleException() {
+        StdOut.println("====testSampleException====");
+        try {
+            RandomizedQueue<String> q = new RandomizedQueue<>();
+            q.sample();
+        }
+        catch (NoSuchElementException e) {
+            StdOut.println("Catch sample NoSuchElementException: " + e.getMessage());
+        }
+    }
+
+    private static void testIteratorNextException() {
+        StdOut.println("====testIteratorNextException====");
+
+        try {
+            RandomizedQueue<String> q = new RandomizedQueue<>();
+            q.iterator().next();
+        }
+        catch (NoSuchElementException e) {
+            StdOut.println("Catch iterator next() exception: " + e.getMessage());
+        }
+    }
+
+    private static void testIteratorRemoveException() {
+        StdOut.println("====testIteratorRemoveException====");
+        try {
+            RandomizedQueue<String> q = new RandomizedQueue<>();
+            q.iterator().remove();
+        }
+        catch (UnsupportedOperationException e) {
+            StdOut.println("Catch iterator remove() exception: " + e.getMessage());
+        }
+    }
+
+    private static void printCurrentQueue(RandomizedQueue<String> q) {
+        StdOut.println("print current: ");
+        for (String s : q) {
+            StdOut.print(s);
+            StdOut.print(" ");
+        }
+        StdOut.println();
+    }
+
+    private static void printArgs(String[] args) {
+        StdOut.println("print args:");
+        for (int i = 0; i < args.length; i++) {
+            StdOut.print(args[i]);
+            StdOut.print(" ");
+        }
+        StdOut.println();
+    }
+
+
+    private static void testRamdon(int n) {
+        StdOut.println("====testRamdon====");
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        for (int i = 0; i < n; i++) {
+            int r = StdRandom.uniform(500);
+            if (r <= n / 2) {
+                StdOut.println("enqueue: " + i);
+                q.enqueue("" + i);
+            }
+            else {
+                if (!q.isEmpty()) {
+                    StdOut.println("dequeue");
+                    q.dequeue();
+                }
+                else {
+                    StdOut.println("enqueue: " + i);
+                    q.enqueue("" + i);
+                }
+            }
+            StdOut.println("Size: " + q.size());
+            printCurrentQueue(q);
+        }
+    }
+
+    private static void testOutOfBounds() {
+        StdOut.println("====testOutOfBounds====");
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+        q.enqueue("0");
+        printCurrentQueue(q);
+
+        q.enqueue("1");
+        printCurrentQueue(q);
+
+        q.dequeue();
+        printCurrentQueue(q);
+
+        q.enqueue("3");
+        printCurrentQueue(q);
+    }
+
+    // unit testing (required)
+    public static void main(String[] args) {
+        testConstructor();
+        testEnqueue(args);
+        testDequeue(args);
+        testSample(args);
+        testIterator(args);
+        testEnqueueException();
+        testDequeueException();
+        testSampleException();
+        testIteratorNextException();
+        testIteratorRemoveException();
+        testRamdon(500);
+        testOutOfBounds();
+    }
+}
