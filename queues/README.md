@@ -19,3 +19,4 @@ This is the programming assignment for Cousera Algorithms week 2.
     
   - Permutation.java
     - How to use k sized RandomizedQueue rathan than n sized (https://en.wikipedia.org/wiki/Reservoir_sampling).
+    - Handle when k == 0.
