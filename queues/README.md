@@ -12,7 +12,10 @@ This is the programming assignment for Cousera Algorithms week 2.
   - unzip the package and open it in the IDE
   - copy the java files (under queues folder) into the project 
   - run the main method in each class to test the implementation.
-  - to specify the k for Permutation.java, set the `Programme arguements` in the Run/Debug Configurations of IntelliJ as k.
+  
+- Run/Debug Configuration:  
+  - to enable the assertion for the unit tests, specify `-ea` in the `VM options`.
+  - to specify the k for Permutation.java, set k as the `Programme arguements`.
   - to specify the input text file for Permutation.java, tick the box infront of `Redirect input from`, and specify the path of the text file.
 
 - Caveat:
