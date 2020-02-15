@@ -9,12 +9,13 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class BruteCollinearPoints {
 
-    private LineSegment[] lineSegments;
-    private int numberOfSegments;
+    private List<LineSegment> lineSegmentList = new ArrayList<>();
 
     /**
      * Finds all line segments containing 4 points
@@ -25,42 +26,44 @@ public class BruteCollinearPoints {
         if (points == null) {
             throw new IllegalArgumentException("The input points is null.");
         }
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null) {
+                throw new IllegalArgumentException(
+                        "The input points[" + i + "] is null");
+            }
+            if (i < points.length - 1) {
+                for (int j = i + 1; j < points.length; j++) {
+                    if (points[j] == null) {
+                        throw new IllegalArgumentException(
+                                "The input points[" + j + "] is null");
+                    }
+                    if (points[i].compareTo(points[j]) == 0) {
+                        throw new IllegalArgumentException(
+                                "The input points[" + i + "] and points [" + j + "] are identical: "
+                                        + points[i]);
+                    }
+                }
+            }
+        }
+
         int n = points.length;
         if (n < 4) {
-            lineSegments = new LineSegment[0];
             return;
         }
-        int combinationSize = factorial(n) / factorial(4) * factorial(n - 4);
-        lineSegments = new LineSegment[combinationSize];
 
-        Arrays.sort(points);
+        Point[] copy = Arrays.copyOf(points, points.length);
+        Arrays.sort(copy);
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
-                double s1 = points[i].slopeTo(points[j]);
-                if (s1 == Double.NEGATIVE_INFINITY) {
-                    throw new IllegalArgumentException(
-                            "The input points contains a repeated point: " + points[i] + " and "
-                                    + points[j]);
-                }
+                double s1 = copy[i].slopeTo(copy[j]);
                 for (int k = j + 1; k < n; k++) {
-                    double s2 = points[j].slopeTo(points[k]);
-                    if (s2 == Double.NEGATIVE_INFINITY) {
-                        throw new IllegalArgumentException(
-                                "The input points contains a repeated point: " + points[j] + " and "
-                                        + points[k]);
-                    }
+                    double s2 = copy[j].slopeTo(copy[k]);
                     if (s1 == s2) {
                         for (int p = k + 1; p < n; p++) {
-                            double s3 = points[k].slopeTo(points[p]);
-                            if (s3 == Double.NEGATIVE_INFINITY) {
-                                throw new IllegalArgumentException(
-                                        "The input points contains a repeated point: " + points[k]
-                                                + " and "
-                                                + points[p]);
-                            }
+                            double s3 = copy[k].slopeTo(copy[p]);
                             if (s2 == s3) {
-                                LineSegment lineSegment = new LineSegment(points[i], points[p]);
-                                lineSegments[numberOfSegments++] = lineSegment;
+                                LineSegment lineSegment = new LineSegment(copy[i], copy[p]);
+                                lineSegmentList.add(lineSegment);
                             }
                         }
                     }
@@ -68,7 +71,6 @@ public class BruteCollinearPoints {
                 }
             }
         }
-        lineSegments = Arrays.copyOf(lineSegments, numberOfSegments);
     }
 
     /**
@@ -77,7 +79,7 @@ public class BruteCollinearPoints {
      * @return the number of line segments
      */
     public int numberOfSegments() {
-        return numberOfSegments;
+        return lineSegmentList.size();
     }
 
     /**
@@ -86,16 +88,9 @@ public class BruteCollinearPoints {
      * @return all the line segments
      */
     public LineSegment[] segments() {
-        return lineSegments;
-    }
-
-    private int factorial(int n) {
-        if (n == 0) {
-            return 1;
-        }
-        int result = 1;
-        for (int i = 1; i <= n; i++) {
-            result = result * i;
+        LineSegment[] result = new LineSegment[lineSegmentList.size()];
+        for (int i = 0; i < lineSegmentList.size(); i++) {
+            result[i] = lineSegmentList.get(i);
         }
         return result;
     }
@@ -107,9 +102,15 @@ public class BruteCollinearPoints {
         int n = in.readInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
+            String s = in.readString();
+            if ("null".equals(s)) {
+                points[i] = null;
+            }
+            else {
+                int x = Integer.parseInt(s);
+                int y = in.readInt();
+                points[i] = new Point(x, y);
+            }
         }
 
         // draw the points
@@ -117,14 +118,15 @@ public class BruteCollinearPoints {
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
         for (Point p : points) {
-            p.draw();
+            if (p != null) {
+                p.draw();
+            }
         }
         StdDraw.show();
 
         // print and draw the line segments
         BruteCollinearPoints collinear = new BruteCollinearPoints(points);
-        for (int i = 0; i < collinear.numberOfSegments; i++) {
-            LineSegment segment = collinear.lineSegments[i];
+        for (LineSegment segment : collinear.segments()) {
             StdOut.println(segment);
             segment.draw();
         }

@@ -25,14 +25,34 @@ public class FastCollinearPoints {
         if (points == null) {
             throw new IllegalArgumentException("The input points is null.");
         }
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null) {
+                throw new IllegalArgumentException(
+                        "The input points[" + i + "] is null");
+            }
+            if (i < points.length - 1) {
+                for (int j = i + 1; j < points.length; j++) {
+                    if (points[j] == null) {
+                        throw new IllegalArgumentException(
+                                "The input points[" + j + "] is null");
+                    }
+                    if (points[i].compareTo(points[j]) == 0) {
+                        throw new IllegalArgumentException(
+                                "The input points[" + i + "] and points [" + j + "] are identical: "
+                                        + points[i]);
+                    }
+                }
+            }
+        }
+
         int n = points.length;
         if (n < 4) {
             return;
         }
 
-        Arrays.sort(points);
         Point[] copy = Arrays.copyOf(points, points.length);
         for (Point origin : points) {
+            Arrays.sort(copy);
             Arrays.sort(copy, origin.slopeOrder());
             double slope = origin.slopeTo(copy[1]);
             int numberOfSameSlopePoints = 1;
@@ -42,16 +62,38 @@ public class FastCollinearPoints {
                 }
                 else {
                     if (numberOfSameSlopePoints >= 3) {
-                        lineSegmentList.add(new LineSegment(origin, copy[i - 1]));
+                        if (isSmallest(copy, origin, i - numberOfSameSlopePoints, i)) {
+                            lineSegmentList.add(new LineSegment(origin, copy[i - 1]));
+                        }
                     }
                     slope = origin.slopeTo(copy[i]);
                     numberOfSameSlopePoints = 1;
                 }
             }
             if (numberOfSameSlopePoints >= 3) {
-                lineSegmentList.add(new LineSegment(origin, copy[copy.length - 1]));
+                if (isSmallest(copy, origin, copy.length - numberOfSameSlopePoints,
+                               copy.length)) {
+                    lineSegmentList.add(new LineSegment(origin, copy[copy.length - 1]));
+                }
             }
         }
+    }
+
+    /**
+     * Sort the points from the index {@code fromIndex}  to the index {@code toIndex}.
+     * And compare the point to the smallest point to chec whether the point is the smallest one
+     * among them.
+     *
+     * @param points    all the points in an array
+     * @param point     the point to check whethere is the smallest
+     * @param fromIndex the start index of the array to sort
+     * @param toIndex   the end index of the array to sort
+     * @return true if the point at index is the smallest, otherwise, false.
+     */
+    private boolean isSmallest(Point[] points, Point point, int fromIndex, int toIndex) {
+        Point[] copy = Arrays.copyOf(points, points.length);
+        Arrays.sort(copy, fromIndex, toIndex);
+        return (point.compareTo(copy[fromIndex]) < 0);
     }
 
     /**
@@ -76,26 +118,21 @@ public class FastCollinearPoints {
         return result;
     }
 
-    private int factorial(int n) {
-        if (n == 0) {
-            return 1;
-        }
-        int result = 1;
-        for (int i = 1; i <= n; i++) {
-            result = result * i;
-        }
-        return result;
-    }
-
     public static void main(String[] args) {
         // read the n points from a file
         In in = new In(args[0]);
         int n = in.readInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
+            String s = in.readString();
+            if ("null".equals(s)) {
+                points[i] = null;
+            }
+            else {
+                int x = Integer.parseInt(s);
+                int y = in.readInt();
+                points[i] = new Point(x, y);
+            }
         }
 
         // draw the points
@@ -103,7 +140,9 @@ public class FastCollinearPoints {
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
         for (Point p : points) {
-            p.draw();
+            if (p != null) {
+                p.draw();
+            }
         }
         StdDraw.show();
 

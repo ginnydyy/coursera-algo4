@@ -60,9 +60,6 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
-        if (that == null) {
-            throw new IllegalArgumentException("The input point is null.");
-        }
         int dy = that.y - this.y;
         int dx = that.x - this.x;
         if (dy == 0) {
@@ -92,21 +89,8 @@ public class Point implements Comparable<Point> {
      * argument point
      */
     public int compareTo(Point that) {
-        if (that == null) {
-            throw new IllegalArgumentException("The input point is null.");
-        }
-        if (this.y < that.y) {
-            return -1;
-        }
-        else if (this.y == that.y) {
-            if (this.x < that.x) {
-                return -1;
-            }
-            else if (this.x == that.x) {
-                return 0;
-            }
-        }
-        return 1;
+        if (this.y == that.y) return this.x - that.x;
+        else return this.y - that.y;
     }
 
     /**
@@ -217,8 +201,7 @@ public class Point implements Comparable<Point> {
             Point p1 = new Point(0, 0);
             p1.slopeTo(null);
         }
-        catch (IllegalArgumentException e) {
-            assert (e.getMessage().equals("The input point is null."));
+        catch (NullPointerException e) {
         }
     }
 
@@ -258,8 +241,7 @@ public class Point implements Comparable<Point> {
             Point p1 = new Point(0, 0);
             int i = p1.compareTo(null);
         }
-        catch (IllegalArgumentException e) {
-            assert (e.getMessage().equals("The input point is null."));
+        catch (NullPointerException e) {
         }
     }
 
